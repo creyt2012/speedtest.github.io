@@ -1,15 +1,86 @@
-<!-- 查看源代码的这位朋友 代码已经开源 github.com/insoxin/ 如果遇到困难可以在博客留言，姬长信https://blog.isoyu.com，很乐意能帮到您! - <br>这个页面最后变动时间戳是:1562372703 --><!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no" />
-<title>HTML5 Speedtest</title>
+<title>Speedtest</title>
+<div class="speed-meter">
+  <div class="speed-progress"></div>
+</div>
+
+
 <style type="text/css">
-	html,body{
-		border:none; padding:0; margin:0;
-		background:#FFFFFF;
-		color:#202020;
-	}
+ body {
+      background: #121212; /* Đổi màu nền thành tối */
+      color: #FFFFFF; /* Đổi màu chữ sang trắng */
+    }
+    
+    .speed-progress {
+      /* Các thuộc tính cơ bản */
+      width: 0;
+      height: 20px;
+      background-color: #3498db;
+      transition: width 0.3s ease-in-out;
+    }
+
+    /* Hiệu ứng nhấp nhô */
+    @keyframes bounce {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* Áp dụng hiệu ứng nhấp nhô khi có lớp 'animate-progress' */
+    .animate-progress {
+      animation: bounce 0.3s;
+    }
+    /* Các phần tử cần thay đổi màu sắc */
+    .speed-meter {
+      background-color: #333; /* Màu của thanh tốc độ */
+    }
+
+  
+
+    /* Điều chỉnh kích thước của các widget */
+       .speed-meter {
+      background-color: #333; /* Màu của thanh tốc độ */
+    }
+
+   .testArea {
+  display: inline-block;
+  width: 16em;
+  height: 12.5em;
+  position: relative;
+  box-sizing: border-box;
+  border: 1px solid #FFFFFF; /* Thêm border với độ dày là 1px và màu trắng */
+  border-radius: 15px; /* Bo góc khoảng 5px */
+}
+
+    /* Điều chỉnh kích thước của các widget */
+    .speed-meter {
+      width: 80%;
+      max-width: 6000px;
+      margin:1px auto;
+      height: 1px; /* Đã điều chỉnh kích thước của thanh tốc độ */
+      border-radius: 6px; /* Đã điều chỉnh đường cong viền */
+      overflow: hidden;
+    }
+
+    .speed-progress {
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease-in-out;
+      border-radius: 6px; /* Đã điều chỉnh đường cong viền */
+    }
+
+/* Adjust the width of .speed-progress using JavaScript to indicate network speed */
+
 	body{
 		text-align:center;
 		font-family:"Roboto",sans-serif;
@@ -40,10 +111,10 @@
 		color:#FFFFFF;
 	}
 	#startStopBtn:before{
-		content:"开始测试";
+		content:"Start";
 	}
 	#startStopBtn.running:before{
-		content:"强制停止";
+		content:"Stop";
 	}
 	#test{
 		margin-top:2em;
@@ -131,6 +202,28 @@
 
 </style>
 <script type="text/javascript">
+
+// Giả sử bạn có dữ liệu tốc độ được lấy từ máy chủ hoặc các nguồn khác
+    let networkSpeed = 50; // Đây là giá trị tốc độ mạng (đơn vị Mbps) bạn muốn hiển thị
+    let progress = document.querySelector('.speed-progress');
+
+    function updateSpeed(speed) {
+      // Chuyển đổi đơn vị từ Mbps sang KB/s để thể hiện trên thanh chỉ số mạng
+      let speedInKB = speed * 125; // 1 Mbps = 125 KB/s
+
+      // Cập nhật kích thước thanh chỉ số mạng theo tốc độ mạng
+      progress.style.width = speedInKB + 'px';
+
+      // Thêm hiệu ứng nhấp nhô
+      progress.classList.add('animate-progress');
+      setTimeout(() => {
+        progress.classList.remove('animate-progress');
+      }, 300); // Thời gian của mỗi chu kỳ nhấp nhô
+    }
+
+    updateSpeed(networkSpeed); // Gọi hàm này với tốc độ mạng cụ thể bạn có
+
+
 function I(id){return document.getElementById(id);}
 var meterBk="#E0E0E0";
 var dlColor="#6060AA",
@@ -205,7 +298,7 @@ function startStop(){
 function updateUI(forced){
 	if(!forced&&(!data||!w)) return;
 	var status=data.testState;
-	I("ip").textContent="测速中...";
+	I("ip").textContent="Đang test";
 	I("dlText").textContent=(status==1&&data.dlStatus==0)?"...":data.dlStatus;
 	drawMeter(I("dlMeter"),mbpsToAmount(Number(data.dlStatus*(status==1?oscillate():1))),meterBk,dlColor,Number(data.dlProgress),progColor);
 	I("ulText").textContent=(status==3&&data.ulStatus==0)?"...":data.ulStatus;
@@ -245,18 +338,18 @@ function initUI(){
 </script>
 </head>
 <body>
-<h1>HTML5 Speedtest</h1>
+<h1>Speedtest Node</h1>
 <div id="startStopBtn" onclick="startStop()"></div>
 <div id="test">
 	<div class="testGroup">
 		<div class="testArea">
-			<div class="testName">下载速度</div>
+			<div class="testName">Download</div>
 			<canvas id="dlMeter" class="meter"></canvas>
 			<div id="dlText" class="meterText"></div>
 			<div class="unit">Mbps</div>
 		</div>
 		<div class="testArea">
-			<div class="testName">上传速度</div>
+			<div class="testName">Uploads</div>
 			<canvas id="ulMeter" class="meter"></canvas>
 			<div id="ulText" class="meterText"></div>
 			<div class="unit">Mbps</div>
@@ -264,13 +357,13 @@ function initUI(){
 	</div>
 	<div class="testGroup">
 		<div class="testArea">
-			<div class="testName">网络延迟</div>
+			<div class="testName">Jitter</div>
 			<canvas id="pingMeter" class="meter"></canvas>
 			<div id="pingText" class="meterText"></div>
 			<div class="unit">ms</div>
 		</div>
 		<div class="testArea">
-			<div class="testName">网络抖动</div>
+			<div class="testName">ping</div>
 			<canvas id="jitMeter" class="meter"></canvas>
 			<div id="jitText" class="meterText"></div>
 			<div class="unit">ms</div>
@@ -282,6 +375,23 @@ function initUI(){
 </div>
 <div class="footer">
 <script>
+// Hàm để thực hiện speedtest vào máy chủ cụ thể
+function speedTestToServer(serverId) {
+  fetch(`https://www.speedtest.net/api/api.php?action=submit&recommended_server_id=${serverId}`)
+    .then(response => response.json())
+    .then(data => {
+      // Xử lý dữ liệu trả về từ speedtest
+      console.log('Speedtest result:', data);
+      // Cập nhật giao diện hoặc thực hiện các thao tác khác dựa trên kết quả speedtest
+    })
+    .catch(error => {
+      console.error('Speedtest failed:', error);
+    });
+}
+
+// Sử dụng hàm speedTestToServer với ID của máy chủ bạn muốn speedtest
+speedTestToServer(26853); // Thay 123 bằng ID của máy chủ cụ thể từ danh sách API
+
 var _hmt = _hmt || [];
 (function() {
   var hm = document.createElement("script");
@@ -290,15 +400,6 @@ var _hmt = _hmt || [];
   s.parentNode.insertBefore(hm, s);
 })();
 </script>
-<script type="text/javascript" charset="UTF-8" src="https://api.isoyu.com/js/v1.js" exte-id="548" data-size="36x140" data-color="#FF7119" data-show="1"></script>
-
-            <a href="https://isoyu.com/sitemap/" target="_blank">SiteMap</a>
-            <a href="https://isoyu.com/spider.html" target="_blank">INSObot</a>
-            <a href="https://api.isoyu.com/" target="_blank">Docker Api</a>
-			<a href="https://isoyu.com/about/Index1.html" target="_blank">Privacy<!-- (en - en_gb - object) --></a>
-			<a href="https://isoyu.com/about/Index20.html" target="_blank">About</a>
-			<a href="https://t.me/INS_O" target="_blank">F.A.Q.</a>
-		    <a href="javascript:;">© 2007-2019 isoyu.com. All Rights Reserved.</a>
 </div>
 <script type="text/javascript">setTimeout(initUI,100);</script>
 </body>
